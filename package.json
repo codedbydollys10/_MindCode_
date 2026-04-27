@@ -1,0 +1,11 @@
+{
+  "name": "mindcode-copy",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev -- --host localhost --port 8080 --strictPort"
+  }
+}
