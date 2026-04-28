@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "dev:backend": "cd backend && npm run dev",
-    "dev:frontend": "cd frontend && npm run dev -- --host localhost --port 8080 --strictPort"
+    "dev:frontend": "cd frontend && npm run dev -- --host localhost --port 8080 --strictPort",
+    "build": "npm --prefix frontend install && npm --prefix frontend run build"
   }
 }
