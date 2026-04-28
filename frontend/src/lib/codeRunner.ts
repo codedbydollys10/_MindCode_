@@ -18,19 +18,31 @@ export const runCode = async (params: {
   stdin?: string;
 }) => {
   const language_id = LANGUAGE_IDS[params.language];
-  const response = await fetch(`${API_BASE}/run`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      code: params.code,
-      language_id,
-      stdin: params.stdin ?? "",
-    }),
+  const payload = JSON.stringify({
+    code: params.code,
+    language_id,
+    stdin: params.stdin ?? "",
   });
+  const endpoints = [`${API_BASE}/run`, `${API_BASE}/execute`];
+  let response: Response | null = null;
+  let lastUrl = endpoints[0];
+
+  for (const url of endpoints) {
+    lastUrl = url;
+    response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: payload,
+    });
+    // If this route exists, use its response as source of truth.
+    if (response.status !== 404 && response.status !== 405) break;
+  }
+
+  if (!response) throw new Error("Code runner request could not be created.");
 
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
-    throw new Error(body.error || "Failed to run code");
+    throw new Error(body.error || `Failed to run code via ${lastUrl} (HTTP ${response.status})`);
   }
 
   return response.json() as Promise<{
