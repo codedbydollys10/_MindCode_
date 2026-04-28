@@ -258,7 +258,7 @@ app.get('/health/cors', (req, res) => {
  * Body: { code: string, language_id: number, stdin?: string }
  * Returns: { output, error, status, time, memory }
  */
-app.post('/run', async (req, res) => {
+const handleCodeRun = async (req, res) => {
   const { code, language_id, stdin = '' } = req.body;
 
   if (!code || !language_id) {
@@ -304,7 +304,10 @@ app.post('/run', async (req, res) => {
       error: err?.response?.data?.message || err.message || 'Internal server error',
     });
   }
-});
+};
+
+app.post('/run', handleCodeRun);
+app.post('/execute', handleCodeRun);
 
 // ────────────────────────────────────────────────────────────
 // Behavior tracking schemas
