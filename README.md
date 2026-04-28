@@ -21,8 +21,6 @@ MindCode goes beyond traditional coding tests. It captures **how** a candidate t
 LINK : https://mind-code-gilt.vercel.app/
 
 > **For candidates** — a smooth, Monaco-powered coding experience with live code execution and detailed post-assessment feedback.
->
-> **For recruiters & instructors** — cognitive radar charts, behavioral heatmaps, AI-generated strengths/weaknesses, and actionable study plans.
 
 ---
 
@@ -50,12 +48,6 @@ MindCode evaluates candidates across five cognitive dimensions:
 | **Focus** | Sustained attention and distraction indicators |
 | **Planning** | Code structure written before execution attempts |
 | **Adaptability** | Response to failed test cases and strategy pivots |
-
-### Recruiter Dashboard
-- Candidate cognitive profiles with narrative AI summaries
-- Side-by-side comparison of multiple attempts
-- AI-generated strengths, weak areas, and recommended learning paths
-- PDF report export directly from the result screen
 
 ---
 
