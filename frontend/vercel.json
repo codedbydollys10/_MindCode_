@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/question",
+      "destination": "https://mindcode-4v9p.onrender.com/question"
+    },
+    {
+      "source": "/execute",
+      "destination": "https://mindcode-4v9p.onrender.com/execute"
+    },
+    {
+      "source": "/log-keystrokes-batch",
+      "destination": "https://mindcode-4v9p.onrender.com/log-keystrokes-batch"
+    }
+  ]
+}
