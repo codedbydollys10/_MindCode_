@@ -10,7 +10,7 @@ const LANGUAGE_IDS: Record<SupportedLanguage, number> = {
   rust: 73, // Rust (1.56)
 };
 
-const API_BASE = import.meta.env.VITE_CODE_RUNNER_URL || "http://localhost:3001";
+const API_BASE = import.meta.env.VITE_CODE_RUNNER_URL || "https://mindcode-4v9p.onrender.com";
 
 export const runCode = async (params: {
   language: SupportedLanguage;
