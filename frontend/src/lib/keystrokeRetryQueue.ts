@@ -215,7 +215,7 @@ export class KeystrokeRetryQueue {
    * Send keystroke to backend
    */
   private async sendKeystroke(item: QueuedKeystroke): Promise<void> {
-    const url = `${import.meta.env.VITE_CODE_RUNNER_URL || "http://localhost:3001"}/api/keystroke-log`;
+    const url = `${import.meta.env.VITE_CODE_RUNNER_URL || "https://mind-code-gilt.vercel.app"}/api/keystroke-log`;
 
     const response = await fetch(url, {
       method: "POST",

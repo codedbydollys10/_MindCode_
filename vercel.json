@@ -1,0 +1,26 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "frontend/dist",
+  "rewrites": [
+    { "source": "/run", "destination": "/api/index?__path=/run" },
+    { "source": "/question", "destination": "/api/index?__path=/question" },
+    { "source": "/analyze", "destination": "/api/index?__path=/analyze" },
+    { "source": "/analysis", "destination": "/api/index?__path=/analysis" },
+    { "source": "/keystroke", "destination": "/api/index?__path=/keystroke" },
+    { "source": "/emotion", "destination": "/api/index?__path=/emotion" },
+    { "source": "/behavior-block", "destination": "/api/index?__path=/behavior-block" },
+    { "source": "/log-keystroke", "destination": "/api/index?__path=/log-keystroke" },
+    { "source": "/log-keystrokes-batch", "destination": "/api/index?__path=/log-keystrokes-batch" },
+    { "source": "/generate-report", "destination": "/api/index?__path=/generate-report" },
+    { "source": "/generate-recommendations", "destination": "/api/index?__path=/generate-recommendations" },
+    { "source": "/submit-code", "destination": "/api/index?__path=/submit-code" },
+    { "source": "/health/supabase", "destination": "/api/index?__path=/health/supabase" },
+    { "source": "/behavioral-timeline", "destination": "/api/index?__path=/behavioral-timeline" },
+    { "source": "/user-report/(.*)", "destination": "/api/index?__path=/user-report/$1" },
+    { "source": "/recruiter-dashboard", "destination": "/api/index?__path=/recruiter-dashboard" },
+    { "source": "/recruiter-report/(.*)", "destination": "/api/index?__path=/recruiter-report/$1" },
+    { "source": "/recruiter-analysis", "destination": "/api/index?__path=/recruiter-analysis" },
+    { "source": "/api/keystroke-log", "destination": "/api/index?__path=/api/keystroke-log" },
+    { "source": "/api/keystroke-logs", "destination": "/api/index?__path=/api/keystroke-logs" }
+  ]
+}

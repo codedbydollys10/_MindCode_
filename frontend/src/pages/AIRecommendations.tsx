@@ -233,7 +233,7 @@ export default function AIRecommendations() {
       const API =
         import.meta.env.VITE_AI_API_BASE ||
         import.meta.env.VITE_CODE_RUNNER_URL ||
-        "http://localhost:3001";
+        "https://mind-code-gilt.vercel.app";
 
       setLoadStep(3);
 

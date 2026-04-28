@@ -200,7 +200,7 @@ export function useEnhancedKeystrokeTracker(options: UseKeystrokeTrackerOptions)
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_CODE_RUNNER_URL || "http://localhost:3001"}/api/keystroke-logs`,
+        `${import.meta.env.VITE_CODE_RUNNER_URL || "https://mind-code-gilt.vercel.app"}/api/keystroke-logs`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -307,7 +307,7 @@ export function useEnhancedKeystrokeTracker(options: UseKeystrokeTrackerOptions)
         // Try sync flush (best effort)
         const events = bufferRef.current;
         navigator.sendBeacon(
-          `${import.meta.env.VITE_CODE_RUNNER_URL || "http://localhost:3001"}/api/keystroke-logs`,
+          `${import.meta.env.VITE_CODE_RUNNER_URL || "https://mind-code-gilt.vercel.app"}/api/keystroke-logs`,
           JSON.stringify({ events })
         );
       }

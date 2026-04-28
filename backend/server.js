@@ -12,6 +12,7 @@ import http from 'http';
 const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 3001;
+const IS_VERCEL = process.env.VERCEL === '1';
 
 // Judge0 CE public instance
 const JUDGE0_URL = process.env.JUDGE0_URL || 'https://ce.judge0.com';
@@ -1556,89 +1557,92 @@ app.post('/analysis', async (req, res) => {
 
 // ────────────────────────────────────────────────────────────
 // WebSocket pipeline: /stream
+// Disabled on Vercel serverless runtime.
 // ────────────────────────────────────────────────────────────
-const wss = new WebSocketServer({ server, path: '/stream' });
+if (!IS_VERCEL) {
+  const wss = new WebSocketServer({ server, path: '/stream' });
 
-wss.on('connection', (ws) => {
-  ws.on('message', async (msg) => {
-    try {
-      const payload = JSON.parse(msg.toString());
+  wss.on('connection', (ws) => {
+    ws.on('message', async (msg) => {
+      try {
+        const payload = JSON.parse(msg.toString());
 
-      if (payload.type === 'behavior-block') {
-        // Explicit behavior-block routing
-        const parsed = behaviorBlockSchema.safeParse(payload.data);
-        if (!parsed.success) {
-          console.error('[WS] behavior-block schema validation failed:', parsed.error.issues);
-          return;
-        }
-        try {
-          await insertBehaviorBlock(parsed.data);
-          console.log('[WS] ✅ behavior-block stored');
-        } catch (err) {
-          console.error('[WS] behavior-block insert failed:', err?.message);
-        }
-
-      } else if (payload.type === 'keystroke-batch') {
-        if (!supabase) return;
-        const events = Array.isArray(payload?.data?.events) ? payload.data.events : [];
-        if (!events.length) return;
-        const normalizedEvents = events.map((event) => mapKeystrokePayload(event));
-        const { error } = await supabase.from('keystroke_logs').insert(normalizedEvents);
-        if (error) {
-          console.error('[WS] keystroke-batch insert failed:', error.message);
-        }
-      } else if (payload.type === 'keystroke') {
-        // Check if this is actually a behavior block sent with wrong type
-        const data = payload.data;
-        if (data && typeof data.keystroke_count !== 'undefined') {
-          // Mis-typed behavior block — re-route
-          const parsed = behaviorBlockSchema.safeParse(data);
+        if (payload.type === 'behavior-block') {
+          // Explicit behavior-block routing
+          const parsed = behaviorBlockSchema.safeParse(payload.data);
           if (!parsed.success) {
-            console.error('[WS] mis-typed behavior-block schema validation failed:', parsed.error.issues);
+            console.error('[WS] behavior-block schema validation failed:', parsed.error.issues);
             return;
           }
           try {
             await insertBehaviorBlock(parsed.data);
-            console.log('[WS] ✅ mis-typed behavior-block re-routed and stored');
+            console.log('[WS] ✅ behavior-block stored');
           } catch (err) {
-            console.error('[WS] mis-typed behavior-block insert failed:', err?.message);
+            console.error('[WS] behavior-block insert failed:', err?.message);
           }
-        } else {
-          // Normal individual keystroke event
-          const parsed = keystrokeSchema.safeParse(data);
+
+        } else if (payload.type === 'keystroke-batch') {
+          if (!supabase) return;
+          const events = Array.isArray(payload?.data?.events) ? payload.data.events : [];
+          if (!events.length) return;
+          const normalizedEvents = events.map((event) => mapKeystrokePayload(event));
+          const { error } = await supabase.from('keystroke_logs').insert(normalizedEvents);
+          if (error) {
+            console.error('[WS] keystroke-batch insert failed:', error.message);
+          }
+        } else if (payload.type === 'keystroke') {
+          // Check if this is actually a behavior block sent with wrong type
+          const data = payload.data;
+          if (data && typeof data.keystroke_count !== 'undefined') {
+            // Mis-typed behavior block — re-route
+            const parsed = behaviorBlockSchema.safeParse(data);
+            if (!parsed.success) {
+              console.error('[WS] mis-typed behavior-block schema validation failed:', parsed.error.issues);
+              return;
+            }
+            try {
+              await insertBehaviorBlock(parsed.data);
+              console.log('[WS] ✅ mis-typed behavior-block re-routed and stored');
+            } catch (err) {
+              console.error('[WS] mis-typed behavior-block insert failed:', err?.message);
+            }
+          } else {
+            // Normal individual keystroke event
+            const parsed = keystrokeSchema.safeParse(data);
+            if (!parsed.success) {
+              console.error('[WS] keystroke schema validation failed:', parsed.error.issues);
+              return;
+            }
+            try {
+              await insertKeystroke(parsed.data);
+            } catch (err) {
+              console.error('[WS] keystroke insert failed:', err?.message);
+            }
+          }
+
+        } else if (payload.type === 'emotion') {
+          const parsed = emotionSchema.safeParse(payload.data);
           if (!parsed.success) {
-            console.error('[WS] keystroke schema validation failed:', parsed.error.issues);
+            console.error('[WS] emotion schema validation failed:', parsed.error.issues);
             return;
           }
           try {
-            await insertKeystroke(parsed.data);
+            await insertEmotion(parsed.data);
           } catch (err) {
-            console.error('[WS] keystroke insert failed:', err?.message);
+            console.error('[WS] emotion insert failed:', err?.message);
           }
         }
-
-      } else if (payload.type === 'emotion') {
-        const parsed = emotionSchema.safeParse(payload.data);
-        if (!parsed.success) {
-          console.error('[WS] emotion schema validation failed:', parsed.error.issues);
-          return;
-        }
-        try {
-          await insertEmotion(parsed.data);
-        } catch (err) {
-          console.error('[WS] emotion insert failed:', err?.message);
-        }
+      } catch (err) {
+        console.error('[WS] message handler error:', err.message);
       }
-    } catch (err) {
-      console.error('[WS] message handler error:', err.message);
-    }
+    });
   });
-});
 
-server.listen(PORT, () => {
-  console.log(`\n🚀 SkillDNA Editor API running on http://localhost:${PORT}`);
-  console.log(`➡️  WebSocket stream on ws://localhost:${PORT}/stream\n`);
-});
+  server.listen(PORT, () => {
+    console.log(`\n🚀 SkillDNA Editor API running on http://localhost:${PORT}`);
+    console.log(`➡️  WebSocket stream on ws://localhost:${PORT}/stream\n`);
+  });
+}
 
 // ═══════════════════════════════════════════════════════════════
 // FEATURE 1: ENHANCED BEHAVIORAL TRACKING ENGINE
@@ -1709,6 +1713,35 @@ app.post('/log-keystrokes-batch', async (req, res) => {
   } catch (err) {
     console.error('[log-keystrokes-batch]', err?.message);
     res.status(500).json({ error: 'Batch insert failed' });
+  }
+});
+
+// Backward-compatible aliases used by frontend retry queue utilities.
+app.post('/api/keystroke-log', async (req, res) => {
+  const parsed = enhancedKeystrokeSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.message });
+  try {
+    await insertKeystroke(parsed.data);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[api/keystroke-log]', err?.message);
+    res.status(500).json({ error: err.message || 'Failed to log keystroke' });
+  }
+});
+
+app.post('/api/keystroke-logs', async (req, res) => {
+  const events = Array.isArray(req.body?.events) ? req.body.events : [];
+  if (!events.length) return res.status(400).json({ error: 'events[] required' });
+  if (!supabase) return res.status(500).json({ error: 'Supabase env missing' });
+
+  try {
+    const normalizedEvents = events.map((event) => mapKeystrokePayload(event));
+    const { error } = await supabase.from('keystroke_logs').insert(normalizedEvents);
+    if (error) throw error;
+    res.json({ ok: true, inserted: normalizedEvents.length });
+  } catch (err) {
+    console.error('[api/keystroke-logs]', err?.message);
+    res.status(500).json({ error: err.message || 'Failed to store keystroke batch' });
   }
 });
 
@@ -2877,3 +2910,5 @@ app.post('/submit-code', async (req, res) => {
     res.status(400).json({ error: 'Unable to process submission' });
   }
 });
+
+export default app;

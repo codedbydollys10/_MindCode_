@@ -413,7 +413,7 @@ export const useAssessmentSession = create<AssessmentState>((set, get) => ({
       const timeoutMs = easyOnly ? 25000 : 2500;
       const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
       try {
-        const resp = await fetch(`${import.meta.env.VITE_AI_API_BASE || import.meta.env.VITE_CODE_RUNNER_URL || "http://localhost:3001"}/question`, {
+        const resp = await fetch(`${import.meta.env.VITE_AI_API_BASE || import.meta.env.VITE_CODE_RUNNER_URL || "https://mind-code-gilt.vercel.app"}/question`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ language, level: difficulty, topic }),
@@ -655,7 +655,7 @@ export const useAssessmentSession = create<AssessmentState>((set, get) => ({
       const supa = hasSupabaseEnv ? getSupabaseClient() : null;
       const { data: { user } } = supa ? await supa.auth.getUser() : { data: { user: null } };
       userId = user?.id || "";
-      const endpoint = `${import.meta.env.VITE_AI_API_BASE || import.meta.env.VITE_CODE_RUNNER_URL || "http://localhost:3001"}/analysis`;
+      const endpoint = `${import.meta.env.VITE_AI_API_BASE || import.meta.env.VITE_CODE_RUNNER_URL || "https://mind-code-gilt.vercel.app"}/analysis`;
       const resp = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -783,7 +783,7 @@ export const useAssessmentSession = create<AssessmentState>((set, get) => ({
     }
 
     if (userId && state.sessionId && state.code) {
-      const submitAPI = import.meta.env.VITE_CODE_RUNNER_URL || "http://localhost:3001";
+      const submitAPI = import.meta.env.VITE_CODE_RUNNER_URL || "https://mind-code-gilt.vercel.app";
       try {
         const langId = LANGUAGE_IDS[state.language as SupportedLanguage] || 71;
         console.log('[completeAssessment] Storing submission:', { userId, sessionId: state.sessionId, language: state.language });
@@ -819,7 +819,7 @@ export const useAssessmentSession = create<AssessmentState>((set, get) => ({
 
     // Persist report/recommendation from real stored telemetry before refreshing history.
     if (userId && state.sessionId) {
-      const API = import.meta.env.VITE_CODE_RUNNER_URL || "http://localhost:3001";
+      const API = import.meta.env.VITE_CODE_RUNNER_URL || "https://mind-code-gilt.vercel.app";
       try {
         await fetch(`${API}/generate-report`, {
           method: "POST",

@@ -150,7 +150,7 @@ const fetchBytezNarrative = async (report: AssessmentReport, a: ReportAnalytics)
     const userId = user?.id;
     if (!userId) return null;
 
-    const API = (import.meta.env.VITE_CODE_RUNNER_URL as string | undefined) || "http://localhost:3001";
+    const API = (import.meta.env.VITE_CODE_RUNNER_URL as string | undefined) || "https://mind-code-gilt.vercel.app";
     const response = await fetch(`${API}/generate-recommendations`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

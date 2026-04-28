@@ -3,11 +3,11 @@ import { useEffect, useRef } from "react";
 const WS_URL = (() => {
   const base = import.meta.env.VITE_WS_URL as string | undefined;
   if (base) return base;
-  const httpBase = (import.meta.env.VITE_CODE_RUNNER_URL as string | undefined) || "http://localhost:3001";
+  const httpBase = (import.meta.env.VITE_CODE_RUNNER_URL as string | undefined) || "https://mind-code-gilt.vercel.app";
   return `${httpBase.replace(/^http/, "ws")}/stream`;
 })();
 
-const API_BASE = (import.meta.env.VITE_CODE_RUNNER_URL as string | undefined) || "http://localhost:3001";
+const API_BASE = (import.meta.env.VITE_CODE_RUNNER_URL as string | undefined) || "https://mind-code-gilt.vercel.app";
 const FLUSH_INTERVAL_MS = 800;
 const SNAPSHOT_INTERVAL_MS = 15000;
 const SNAPSHOT_DELTA_CHARS = 100;
