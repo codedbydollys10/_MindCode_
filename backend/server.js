@@ -177,8 +177,53 @@ const allocateUniqueTitle = (rawTitle, fallback = 'Beginner Coding Challenge') =
   return candidate;
 };
 
-app.use(cors());
-app.use(express.json());
+const parseOrigins = (value = '') => value
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const allowedOrigins = new Set([
+  ...parseOrigins(process.env.CORS_ORIGINS || ''),
+  ...parseOrigins(process.env.FRONTEND_URL || ''),
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+]);
+
+const isAllowedOrigin = (origin = '') => {
+  if (!origin) return true;
+  if (allowedOrigins.has(origin)) return true;
+  return /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin);
+};
+
+const corsOptions = {
+  origin(origin, callback) {
+    if (isAllowedOrigin(origin)) return callback(null, true);
+    console.error('[CORS] Blocked origin:', origin || '(none)');
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id', 'x-user-role'],
+  optionsSuccessStatus: 204,
+};
+
+app.disable('x-powered-by');
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+app.use(express.json({ limit: '2mb' }));
+
+app.use((req, _res, next) => {
+  if (req.method === 'OPTIONS') {
+    console.log('[CORS preflight]', {
+      origin: req.headers.origin || null,
+      method: req.headers['access-control-request-method'] || null,
+      headers: req.headers['access-control-request-headers'] || null,
+      path: req.originalUrl,
+    });
+  }
+  next();
+});
 
 // Health check
 app.get('/', (_req, res) => {
@@ -191,6 +236,21 @@ app.get('/health/supabase', async (_req, res) => {
   const { error } = await supabase.from('users').select('id').limit(1);
   if (error) return res.status(500).json({ ok: false, error: error.message });
   res.json({ ok: true });
+});
+
+app.get('/health/cors', (req, res) => {
+  const origin = req.headers.origin || null;
+  const allowed = isAllowedOrigin(origin || '');
+  res.json({
+    ok: true,
+    origin,
+    allowed,
+    credentials: corsOptions.credentials,
+    allowedHeaders: corsOptions.allowedHeaders,
+    allowedMethods: corsOptions.methods,
+    configuredExactOrigins: [...allowedOrigins],
+    vercelWildcardEnabled: true,
+  });
 });
 
 /**
