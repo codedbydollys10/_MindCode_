@@ -10,11 +10,7 @@ const LANGUAGE_IDS: Record<SupportedLanguage, number> = {
   rust: 73, // Rust (1.56)
 };
 
-<<<<<<< HEAD
 const API_BASE = import.meta.env.VITE_CODE_RUNNER_URL || "https://mindcode-4v9p.onrender.com";
-=======
-const API_BASE = import.meta.env.VITE_CODE_RUNNER_URL || "https://mind-code-gilt.vercel.app";
->>>>>>> first commit
 
 export const runCode = async (params: {
   language: SupportedLanguage;
